@@ -16,7 +16,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import * as d3 from 'd3'
 import { useDataStore } from '../stores/useDataStore'
 
@@ -25,10 +25,9 @@ const dataStore = useDataStore()
 
 let svg, g, xScale, yScale, brush, zoom, originalXDomain, originalYDomain
 let classColorMap = new Map()
+let width, height, resizeObserver
 
 const margin = { top: 20, right: 20, bottom: 40, left: 40 }
-const width = 600 - margin.left - margin.right
-const height = 500 - margin.top - margin.bottom
 
 // Generate random color for a class
 function generateRandomColor() {
@@ -45,9 +44,121 @@ function getColor(className) {
   return classColorMap.get(className)
 }
 
+// Get container dimensions and account for margins
+function getContainerDimensions() {
+  if (!chartRef.value) return { width: 600, height: 400 }
+  
+  const rect = chartRef.value.getBoundingClientRect()
+  
+  // If container has no size yet, try to get it from parent or use defaults
+  let containerWidth = rect.width
+  let containerHeight = rect.height
+  
+  if (containerWidth === 0 || containerHeight === 0) {
+    const parent = chartRef.value.parentElement
+    if (parent) {
+      const parentRect = parent.getBoundingClientRect()
+      containerWidth = parentRect.width || 600
+      containerHeight = parentRect.height || 400
+    } else {
+      containerWidth = 600
+      containerHeight = 400
+    }
+  }
+  
+  return {
+    width: Math.max(300, containerWidth - margin.left - margin.right),
+    height: Math.max(250, containerHeight - margin.top - margin.bottom)
+  }
+}
+
+function updateDimensions() {
+  const dimensions = getContainerDimensions()
+  width = dimensions.width
+  height = dimensions.height
+}
+
+let resizeTimeout
+
+function setupResizeObserver() {
+  if (!window.ResizeObserver) {
+    // Fallback to window resize for older browsers
+    window.addEventListener('resize', handleResize)
+    return
+  }
+  
+  resizeObserver = new ResizeObserver(() => {
+    // Debounce resize events
+    clearTimeout(resizeTimeout)
+    resizeTimeout = setTimeout(() => {
+      const oldWidth = width
+      const oldHeight = height
+      updateDimensions()
+      
+      // Only resize if dimensions actually changed
+      if (svg && (width !== oldWidth || height !== oldHeight)) {
+        resizeChart()
+      }
+    }, 100)
+  })
+  
+  if (chartRef.value) {
+    resizeObserver.observe(chartRef.value)
+  }
+}
+
+function handleResize() {
+  clearTimeout(resizeTimeout)
+  resizeTimeout = setTimeout(() => {
+    const oldWidth = width
+    const oldHeight = height
+    updateDimensions()
+    
+    if (svg && (width !== oldWidth || height !== oldHeight)) {
+      resizeChart()
+    }
+  }, 100)
+}
+
+function resizeChart() {
+  if (!svg) return
+  
+  // Update SVG dimensions
+  svg
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  
+  // Update clip path
+  svg.select("#plot-clip rect")
+    .attr("width", width)
+    .attr("height", height)
+  
+  // Update axis positions
+  g.select(".x-axis")
+    .attr("transform", `translate(0,${height})`)
+  
+  // Update zoom extent
+  if (zoom) {
+    zoom.extent([[0, 0], [width, height]])
+    svg.call(zoom)
+  }
+  
+  // Update brush extent
+  if (brush) {
+    brush.extent([[0, 0], [width, height]])
+    g.select(".brush").call(brush)
+  }
+  
+  // Recalculate and update chart
+  updateChart()
+}
+
 function initChart() {
   // Clear existing chart
   d3.select(chartRef.value).selectAll("*").remove()
+
+  // Update dimensions from container
+  updateDimensions()
 
   svg = d3.select(chartRef.value)
     .append("svg")
@@ -68,6 +179,7 @@ function initChart() {
   // Create zoom behavior
   zoom = d3.zoom()
     .scaleExtent([0.1, 10])
+    .extent([[0, 0], [width, height]])
     .on("zoom", handleZoom)
     .filter(event => {
       // Allow zoom with wheel, pan with right mouse button
@@ -256,11 +368,26 @@ function handleBrushEnd(event) {
 }
 
 onMounted(() => {
-  initChart()
+  // Wait for next tick to ensure container is rendered
+  nextTick(() => {
+    initChart()
+    setupResizeObserver()
+  })
+})
+
+onUnmounted(() => {
+  if (resizeObserver) {
+    resizeObserver.disconnect()
+  } else {
+    window.removeEventListener('resize', handleResize)
+  }
+  clearTimeout(resizeTimeout)
 })
 
 watch(() => dataStore.filteredEmbeddings, () => {
-  updateChart()
+  if (svg) {
+    updateChart()
+  }
 }, { deep: true })
 
 watch(() => dataStore.selectedClass, () => {
@@ -270,6 +397,22 @@ watch(() => dataStore.selectedClass, () => {
     dataStore.loadClassEmbeddings(dataStore.selectedClass)
   }
 })
+
+// Watch for visibility changes (useful for tabs, modals, etc.)
+watch(() => chartRef.value, (newRef) => {
+  if (newRef && svg) {
+    // Re-check dimensions in case container became visible
+    nextTick(() => {
+      const oldWidth = width
+      const oldHeight = height
+      updateDimensions()
+      
+      if (width !== oldWidth || height !== oldHeight) {
+        resizeChart()
+      }
+    })
+  }
+})
 </script>
 
 <style scoped>
@@ -277,19 +420,22 @@ watch(() => dataStore.selectedClass, () => {
   position: relative;
   width: 100%;
   height: 100%;
-  min-height: 500px;
+  min-height: 300px;
   border: 1px solid #ddd;
   border-radius: 8px;
   background: white;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .chart {
   flex: 1;
   width: 100%;
   height: 100%;
+  min-height: 0; /* Important for flex child to shrink */
   cursor: crosshair;
+  overflow: hidden;
 }
 
 .plot-controls {
