@@ -4,8 +4,43 @@
     "version": "1.0",
     "year": 2024
   },
-  "images": [],
-  "annotations": [],
+  "images": [
+    {
+      "id": 1,
+      "width": 3294,
+      "height": 1848,
+      "file_name": "kanal75_test_scr.png"
+    }
+  ],
+  "annotations": [
+    {
+      "id": 1,
+      "image_id": 1,
+      "category_id": 3,
+      "bbox": [450, 320, 280, 180],
+      "area": 50400,
+      "iscrowd": 0,
+      "score": 0.87
+    },
+    {
+      "id": 2,
+      "image_id": 1,
+      "category_id": 1,
+      "bbox": [1200, 450, 95, 220],
+      "area": 20900,
+      "iscrowd": 0,
+      "score": 0.92
+    },
+    {
+      "id": 3,
+      "image_id": 1,
+      "category_id": 4,
+      "bbox": [2100, 680, 150, 120],
+      "area": 18000,
+      "iscrowd": 0,
+      "score": 0.73
+    }
+  ],
   "categories": [
     {"id": 1, "name": "person", "supercategory": "person"},
     {"id": 2, "name": "bicycle", "supercategory": "vehicle"},

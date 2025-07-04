@@ -73,7 +73,7 @@ class DataLoader:
         """Get embedding points with class information"""
         if self.embeddings is None or self.annotations is None or self.mapping is None:
             raise RuntimeError("Data not loaded. Call load_all() first.")
-            
+        
         points = []
         
         # Create category_id to name mapping
