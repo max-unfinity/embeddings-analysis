@@ -1,0 +1,16 @@
+{
+  "info": {
+    "description": "Object Detection Predictions",
+    "version": "1.0",
+    "year": 2024
+  },
+  "images": [],
+  "annotations": [],
+  "categories": [
+    {"id": 1, "name": "person", "supercategory": "person"},
+    {"id": 2, "name": "bicycle", "supercategory": "vehicle"},
+    {"id": 3, "name": "car", "supercategory": "vehicle"},
+    {"id": 4, "name": "motorcycle", "supercategory": "vehicle"},
+    {"id": 5, "name": "airplane", "supercategory": "vehicle"}
+  ]
+}

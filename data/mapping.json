@@ -1,0 +1,8 @@
+{
+  "_comment": "Maps annotation_id to embedding index",
+  "_example": {
+    "12345": 0,
+    "12346": 1,
+    "12347": 2
+  }
+}

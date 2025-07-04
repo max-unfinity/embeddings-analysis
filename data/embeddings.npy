@@ -1,0 +1,3 @@
+# This is a placeholder for embeddings.npy
+# Replace with your actual numpy array file containing 2D embeddings
+# Shape should be (N, 2) where N is number of detections
