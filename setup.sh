@@ -55,8 +55,8 @@ touch frontend/src/styles/main.css
 echo "Creating sample data files..."
 
 # Sample embeddings (empty numpy array placeholder)
-cat > data/embeddings.npy << 'EOF'
-# This is a placeholder for embeddings.npy
+cat > data/embeddings_2d.npy << 'EOF'
+# This is a placeholder for embeddings_2d.npy
 # Replace with your actual numpy array file containing 2D embeddings
 # Shape should be (N, 2) where N is number of detections
 EOF
@@ -140,7 +140,7 @@ frontend/dist/
 frontend/build/
 
 # Data files (uncomment to ignore large data files)
-# data/embeddings.npy
+# data/embeddings_2d.npy
 # data/images/*
 # !data/images/.gitkeep
 

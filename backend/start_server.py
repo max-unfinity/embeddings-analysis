@@ -11,7 +11,7 @@ def check_data_files():
     """Check if required data files exist"""
     data_dir = Path("data")
     required_files = [
-        "embeddings.npy",
+        "embeddings_2d.npy",
         "annotations.json", 
         "mapping.json"
     ]

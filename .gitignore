@@ -31,7 +31,7 @@ frontend/build/
 frontend/package-lock.json
 
 # Data files (uncomment to ignore large data files)
-# data/embeddings.npy
+# data/embeddings_2d.npy
 # data/images/*
 # !data/images/.gitkeep
 

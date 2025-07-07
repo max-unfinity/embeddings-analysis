@@ -21,7 +21,7 @@ class DataLoader:
         
     def load_embeddings(self):
         """Load embeddings from numpy file"""
-        embeddings_path = self.data_dir / "embeddings.npy"
+        embeddings_path = self.data_dir / "embeddings_2d.npy"
         if not embeddings_path.exists():
             raise FileNotFoundError(f"Embeddings file not found: {embeddings_path}")
         

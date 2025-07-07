@@ -35,7 +35,7 @@ Your data directory should be organized as follows:
 
 ```
 data/
-├── embeddings.npy          # 2D embedding vectors (N x 2)
+├── embeddings_2d.npy          # 2D embedding vectors (N x 2)
 ├── annotations.json        # COCO format predictions  
 ├── mapping.json           # annotation_id → embedding_index mapping
 ├── images/                # Original images directory
@@ -58,7 +58,7 @@ data/
    ```
 
 3. **Prepare your data files:**
-   - Place `embeddings.npy`, `annotations.json`, and `mapping.json` in `data/`
+   - Place `embeddings_2d.npy`, `annotations.json`, and `mapping.json` in `data/`
    - Ensure `data/images/` contains your original images
    - Verify mapping.json format: `{"annotation_id": embedding_index, ...}`
 
@@ -135,7 +135,7 @@ Full API documentation: `http://localhost:8000/docs`
 
 ## File Formats
 
-### Embeddings (embeddings.npy)
+### Embeddings (embeddings_2d.npy)
 ```python
 # Shape: (N, 2) where N is number of detections
 # Each row: [x_coordinate, y_coordinate]
@@ -163,7 +163,7 @@ Standard COCO format with:
 ### Backend Issues
 
 **"Data files not found":**
-- Ensure `data/embeddings.npy`, `data/annotations.json`, and `data/mapping.json` exist
+- Ensure `data/embeddings_2d.npy`, `data/annotations.json`, and `data/mapping.json` exist
 - Check file permissions and paths
 
 **"Images not loading":**
@@ -173,7 +173,7 @@ Standard COCO format with:
 
 **"Mapping errors":**
 - Ensure all annotation IDs in mapping.json exist in annotations.json
-- Verify embedding indices are within bounds of embeddings.npy
+- Verify embedding indices are within bounds of embeddings_2d.npy
 
 ### Frontend Issues
 
